@@ -1,5 +1,5 @@
-using JuMP, GLPK
-m = Model(GLPK.Optimizer)
+using JuMP, CPLEX
+m = Model(CPLEX.Optimizer)
 
 @variable(m, 0 <= x <= 2)
 @variable(m, 0 <= y <= 30)
@@ -8,6 +8,7 @@ m = Model(GLPK.Optimizer)
 
 @constraint(m, 1x + 5y <= 3.0)
 
+print(m)
 JuMP.optimize!(m)
 println("Objective value: ", JuMP.objective_value(m))
 println("x = ", JuMP.value(x))
