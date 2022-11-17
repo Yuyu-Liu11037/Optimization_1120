@@ -17,8 +17,9 @@ function solvePure01WithoutCuts(n::Int, epsilon::Float64)
     @objective(model, Max, sum(mu[i] * x[i] for i in (1:n)') - c)
 
     @constraint(model, dot(a,x) <= b)
-    @constraint(model, c^2 <= ((1-epsilon)/epsilon) * sum(sigma[i]^2 * x[i] for i in (1:n)'))
+    @constraint(model, c^2 == ((1-epsilon)/epsilon) * sum(sigma[i]^2 * x[i] for i in (1:n)'))
 
     JuMP.optimize!(model)
+    print(objective_value)
 end
     

@@ -19,7 +19,7 @@ function solveMixed01WithoutCuts(m::Int, epsilon::Float64)
     @objective(model, Max, sum(mu[i] * x[i] for i in (1:n)') + sum(mu[i] * y[i] for i in (1:m)') - c)
 
     @constraint(model, dot(a , [x; y]) <= b)
-    @constraint(model, c^2 <= ((1-epsilon)/epsilon) * ((sum(sigma[i]^2 * x[i] for i in (1:n)')) + (sum(sigma[i+n]^2 * y[i] for i in (1:m)'))))
+    @constraint(model, c^2 == ((1-epsilon)/epsilon) * ((sum(sigma[i]^2 * x[i] for i in (1:n)')) + (sum(sigma[i+n]^2 * y[i] for i in (1:m)'))))
     @constraint(model, y .<= 1)
 
     JuMP.optimize!(model)

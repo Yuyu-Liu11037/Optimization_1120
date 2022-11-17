@@ -19,7 +19,7 @@ function solvePure01WithCuts(n::Int, epsilon::Float64)
     @variable(model, c >= 0)
     @objective(model, Max, sum(mu[i] * x[i] for i in (1:n)') - c)
     @constraint(model, dot(a,x) <= b)
-    @constraint(model, c^2 <= ((1-epsilon)/epsilon) * sum(sigma[i]^2 * x[i] for i in (1:n)'))
+    @constraint(model, c^2 == ((1-epsilon)/epsilon) * sum(sigma[i]^2 * x[i] for i in (1:n)'))
 
     sumn = zeros(Float64 , n , n)
     for i = 1:n , j = 1:i
@@ -32,10 +32,10 @@ function solvePure01WithCuts(n::Int, epsilon::Float64)
         CPLEX.load_callback_variable_primal(cb_data , context_id)
         x_val = callback_value(cb_data , x)
         c_val = callback_value(cb_data , c)
+        
         expr = separate()
         if expr !== nothing
-            con = @build_constraint(expr >= 0)
-            MOI.submit(model, MOI.UserCut(cb_data), con)
+            MOI.submit(model, MOI.UserCut(cb_data), @build_constraint(expr <= 0))
         end
     end
     MOI.set(model, CPLEX.CallbackFunction(), myCallBackFunction)
