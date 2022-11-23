@@ -21,4 +21,3 @@ function solvePure01WithoutCuts(n::Int, epsilon::Float64)
 
     JuMP.optimize!(model)
 end
-    

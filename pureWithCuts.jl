@@ -16,14 +16,10 @@ function solvePure01WithCuts(n::Int, epsilon::Float64)
     end
 
     @variable(model, x[1:n], Bin)
-    @variable(model, c >= 0)
+    @variable(model, c)
     @objective(model, Max, sum(mu[i] * x[i] for i in (1:n)') - c)
     @constraint(model, dot(a,x) <= b)
-    @constraint(model, c^2 == ((1-epsilon)/epsilon) * sum(sigma[i]^2 * x[i] for i in (1:n)'))
-
-    sumn = zeros(Float64 , n , n)
-    for i = 1:n , j = 1:i
-        sumn[j,i] = sum()
+    @constraint(model, c^2 >= ((1-epsilon)/epsilon) * sum(sigma[i]^2 * x[i]^2 for i in (1:n)'))
 
     function myCallBackFunction(cb_data::CPLEX.CallbackContext, context_id::Core.Int64)
         if context_id != CPX_CALLBACKCONTEXT_CANDIDATE
