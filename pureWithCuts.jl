@@ -10,6 +10,13 @@ function solvePure01WithCuts(n::Int, epsilon::Float64)
     end
     Omega = sqrt((1-epsilon)/epsilon)
 
+    model = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0))
+    MOI.set(model, MOI.NumberOfThreads(), 1)
+    @variable(model, 0 <= x[1:n] <= 1)
+    @variable(model, c >= 0)
+    @objective(model, Max, sum(mu[i] * x[i] for i in (1:n)') - Omega * c)
+    @constraint(model, dot(a,x) <= b)
+    @constraint(model, c^2 >= sum(sigma[i]^2 * x[i]^2 for i in (1:n)'))
     function separate(n::Int , x_val::Vector{Float64})
         function h(x::AbstractArray)
             return sum(mu .* x') - Omega * norm(sigma .* x)
@@ -33,50 +40,41 @@ function solvePure01WithCuts(n::Int, epsilon::Float64)
         end
         #if pi' * x > t then return pi' * x - t
         #else return
+        temp = Vector{Float64}(undef, n+1)
+        for i in 1:n
+            temp[i] = pi[i]
+        end
+        temp[n+1] = t
         if pi' * x_val > t
-            return pi' * x_val - t
+            return temp
         else
             return 
         end
     end
-
-    #generate cuts at the root node
-    model = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0 , "CPXPARAM_MIP_Limits_Nodes" => 0))
-    MOI.set(model, MOI.NumberOfThreads(), 1)
-
-    @variable(model, x[1:n], Bin)
-    @variable(model, c >= 0)
-    @objective(model, Max, sum(mu[i] * x[i] for i in (1:n)') - Omega * c)
-    @constraint(model, dot(a,x) <= b)
-    @constraint(model, c^2 >= sum(sigma[i]^2 * x[i]^2 for i in (1:n)'))
-
-    #cb_calls = Int32[]
-    function myCallBackFunction(cb_data::CPLEX.CallbackContext , context_id::Clong)
-        #=push!(cb_calls , context_id)
-        if context_id != CPX_CALLBACKCONTEXT_RELAXATION
-            return
-        end
-        CPLEX.load_callback_variable_primal(cb_data,context_id)
-        data_p = Ref{Cint}()
-        status = CPXgetcallbacknodeinfo(ENV , cb_data.context_id , context_id , 0 , CPXCALLBACKINFO_NODECOUNT , data_p)
-        node_count = data_p[]
-        if node_count != 0
-            return
-        end
-        =#
-        x_val = zeros(Float64 , n)
+    x_0 = Vector{Float64}(undef, n)
+    while true
+        optimize!(model)
         for i in 1:n
-            x_val[i] = callback_value(cb_data,x[i])
+            x_0[i] = JuMP.value(x[i])
         end
-        expr = separate(n, x_val)
-        if expr !== nothing
-            MOI.submit(model, MOI.UserCut(cb_data), @build_constraint(expr <= 0))
+        if (separate(n, x_0) === nothing)
+            break
+        else
+            MOI.add_constraint(model , x , sum(x[i] * separate(n, x_0)[i] for i in (1:n)') <= separate(n, x_0)[1+n])
+            continue
         end
     end
-    MOI.set(model, CPLEX.CallbackFunction(), myCallBackFunction)
-    optimize!(model)
+    
 
-    set_optimizer_attributes(model , "CPXPARAM_MIP_Limits_Nodes" => 9223372036800000000)
-    MOI.set(model, CPLEX.CallbackFunction(), nothing)
-    optimize!(model)
+    model2 = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0))
+    MOI.set(model2, MOI.NumberOfThreads(), 1)
+    @variable(model2, x[1:n] , Bin)
+    @variable(model2, c >= 0)
+    for i in 1:n
+        set_start_value(x[i],x_0[i])
+    end
+    @objective(model2, Max, sum(mu[i] * x[i] for i in (1:n)') - Omega * c)
+    @constraint(model2, dot(a,x) <= b)
+    @constraint(model2, c^2 >= sum(sigma[i]^2 * x[i]^2 for i in (1:n)'))
+    JuMP.optimize!(model2)
 end
