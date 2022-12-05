@@ -11,7 +11,7 @@ function solveMixed01WithoutCuts(m::Int, epsilon::Float64)
     end
     Omega = sqrt((1-epsilon)/epsilon)
 
-    model = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0))
+    model = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0 , "CPXPARAM_Preprocessing_Symmetry" => 0))
     MOI.set(model, MOI.NumberOfThreads(), 1)
     @variable(model, x[1:n] , Bin)
     @variable(model, 0<= y[1:m] <= 1)

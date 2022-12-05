@@ -11,7 +11,7 @@ function solveMixed01WithCuts(m::Int, epsilon::Float64)
     end
     Omega = sqrt((1-epsilon)/epsilon)
 
-    model = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0))
+    model = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0 , "CPXPARAM_Preprocessing_Symmetry" => 0))
     MOI.set(model, MOI.NumberOfThreads(), 1)
     @variable(model, 0 <= x[1:n] <= 1)
     @variable(model, 0 <= y[1:m] <= 1)
@@ -99,24 +99,26 @@ function solveMixed01WithCuts(m::Int, epsilon::Float64)
             continue
         end
     end
+    c_0 = sqrt(sum(sigma[i]^2 * xy_0[i]^2 for i in (1:n)') + sum(sigma[i+n]^2 * xy_0[i+100]^2 for i in (1:m)'))
 
 
 
 
-    model2 = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0))
+    model2 = Model(optimizer_with_attributes(CPLEX.Optimizer, "CPXPARAM_MIP_Strategy_HeuristicEffort" => 0 , "CPXPARAM_Preprocessing_Symmetry" => 0))
     MOI.set(model2, MOI.NumberOfThreads(), 1)
     @variable(model2, x[1:n] , Bin)
     @variable(model2, 0 <= y[1:m] <= 1)
     @variable(model2, c >= 0)
+    @objective(model2, Max, sum(mu[i] * x[i] for i in (1:n)') + sum(mu[i] * y[i] for i in (1:m)') - Omega * c)
+    @constraint(model2, dot(a , [x; y]) <= b)
+    @constraint(model2, c^2 >= sum(sigma[i]^2 * x[i]^2 for i in (1:n)') + sum(sigma[i+n]^2 * y[i]^2 for i in (1:m)'))
+    @constraint(model2, y .<= 1)
     for i in 1:(100)
         set_start_value(x[i],xy_0[i])
     end
     for i in 101:(100+m)
         set_start_value(y[i-100],xy_0[i])
     end
-    @objective(model2, Max, sum(mu[i] * x[i] for i in (1:n)') + sum(mu[i] * y[i] for i in (1:m)') - Omega * c)
-    @constraint(model2, dot(a , [x; y]) <= b)
-    @constraint(model2, c^2 >= sum(sigma[i]^2 * x[i]^2 for i in (1:n)') + sum(sigma[i+n]^2 * y[i]^2 for i in (1:m)'))
-    @constraint(model2, y .<= 1)
+    set_start_value(c , c_0)
     optimize!(model2)
 end
