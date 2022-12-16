@@ -1,0 +1,62 @@
+Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de
+CPXPARAM_Read_DataCheck                          1
+CPXPARAM_Threads                                 2
+CPXPARAM_TimeLimit                               600
+Warning: Control callbacks may disable some MIP features.
+Lazy constraint(s) or lazy constraint/branch callback is present.
+    Disabling dual reductions (CPX_PARAM_REDUCE) in presolve.
+    Disabling non-linear reductions (CPX_PARAM_PRELINEAR) in presolve.
+    Disabling presolve reductions that prevent crushing forms.
+         Disabling repeat represolve because of lazy constraint/incumbent callback.
+Tried aggregator 1 time.
+MIQCP Presolve modified 1 coefficients.
+Reduced MIQCP has 26 rows, 75 columns, and 99 nonzeros.
+Reduced MIQCP has 25 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQCP has 1 quadratic constraints.
+Presolve time = 0.00 sec. (0.05 ticks)
+Probing time = 0.00 sec. (0.01 ticks)
+MIP emphasis: balance optimality and feasibility.
+MIP search method: traditional branch-and-cut.
+Parallel mode: deterministic, using up to 2 threads.
+Root relaxation solution time = 0.00 sec. (0.04 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap         Variable B NodeID Parent  Depth
+
+      0     0      162.0000     0                    325.0000       16         
+      0     0      160.9199     1                     Cone: 1       18         
+      0     0      104.2455     1                     Cone: 2       22         
+      0     0      100.5856     4                     Cone: 3       26         
+      0     0       98.3715     6                     Cone: 4       28         
+      0     0       94.0347     8                     Cone: 5       33         
+      0     0       92.2825    10                     Cone: 6       40         
+      0     0       60.8239    12                    Cone: 32       89         
+      0     0       60.8202    30                    Cone: 49      108         
+      0     0       60.8186    34                    Cone: 66      126         
+      0     0       60.8180    32                    Cone: 80      139         
+      0     0       60.8175    32                    Cone: 95      154         
+      0     0       60.8173    34                   Cone: 112      171         
+      0     0       60.8172    36                   Cone: 119      178         
+      0     0       60.8172    36                   Cone: 120      179         
+      0     0       60.8172    36                   Cone: 121      180         
+      0     0       60.8172    36                     60.8172      180         
+*     0+    0                           -7.4965       60.8172           911.28%
+*     0+    0                            9.4228       60.8172           545.43%
+*     0+    0                           25.3755       60.8172           139.67%
+      0     2       60.8172    36       25.3755       60.8172      180  139.67%                        0             0
+Elapsed time = 0.03 sec. (16.36 ticks, tree = 0.02 MB, solutions = 3)
+*    71+   48                           26.2390       56.0656           113.67%
+-- add new cut[1]: [-133.586408x_int_1+3x_int_2+4x_int_3+5x_int_4+6x_int_5+7x_int_6+9x_int_7+10x_int_8+11x_int_9+12x_int_10+13x_int_11+14x_int_12+15x_int_13+16x_int_14+17x_int_15+18x_int_16 <= 26.413592370890456]
+*    92+   56                           26.9000       55.2914           105.54%
+
+Cone linearizations applied:  96
+User cuts applied:  1
+
+Root node processing (before b&c):
+  Real time             =    0.03 sec. (16.31 ticks)
+Parallel b&c, 2 threads:
+  Real time             =    0.13 sec. (128.73 ticks)
+  Sync time (average)   =    0.00 sec.
+  Wait time (average)   =    0.00 sec.
+                          ------------
+Total (root+branch&cut) =    0.15 sec. (145.03 ticks)

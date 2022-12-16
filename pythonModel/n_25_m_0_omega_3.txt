@@ -1,0 +1,12 @@
+Objective value = 26.900037
+x = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0, 0, 0, 0]
+z = 45.033320996790806
+===============
+Solver details:
+status = integer optimal solution
+gap = 0.0
+problem_type = MIQCP
+time = 0.2509739398956299
+nb_nodes_processed = 4362
+columns = 26
+nb_iterations = 29233
